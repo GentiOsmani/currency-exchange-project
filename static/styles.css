@@ -1,0 +1,48 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.container-fluid {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.fixed-top-section {
+    position: fixed;
+    top: 0;
+    width: 80%;
+    background-color: white;
+    z-index: 1000;
+    padding: 10px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.currency-select {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.content-wrapper {
+    text-align: center;
+    width: 80%;
+    margin-top: 150px;
+}
+
+#currency-graph {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.font-bold {
+    font-weight: bold;
+}

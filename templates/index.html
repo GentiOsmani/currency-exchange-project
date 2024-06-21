@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Exchange Rates</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="fixed-top-section text-center">
+        <h2 class="text-center mb-4 mt-5">Krahasimi i Valutave në Python</h2>
+        <div class="currency-select">
+            <div class="form-group">
+                <label for="currencySelect1">Selekto Valuten 1:</label>
+                <select class="form-control" id="currencySelect1">
+                    {% for currency in currencies %}
+                    <option value="{{ currency }}">{{ currency }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="currencySelect2">Selekto Valuten 2:</label>
+                <select class="form-control" id="currencySelect2">
+                    {% for currency in currencies %}
+                    <option value="{{ currency }}">{{ currency }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="text-right mt-2">
+            <button id="submitBtn" class="btn btn-primary">Krahaso Valutat</button>
+        </div>
+    </div>
+    <div class="content-wrapper">
+        <div id="currency-graph" class="mt-4"></div>
+        <div id="exchange-rate-label" class="mt-2 text-center font-bold"></div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#submitBtn').click(function(e) {
+            e.preventDefault();
+            var selectedCurrency1 = $('#currencySelect1').val();
+            var selectedCurrency2 = $('#currencySelect2').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '/exchange_rate',
+                data: {
+                    'currency1': selectedCurrency1,
+                    'currency2': selectedCurrency2
+                },
+                success: function(response) {
+                    var dataCurrency1 = response.data_currency1;
+                    var dataCurrency2 = response.data_currency2;
+
+                    var layout = {
+                        title:  'Krahasimi mes ' + selectedCurrency1 + ' dhe ' + selectedCurrency2 ,
+                        margin: {
+                            t: 50,
+                            l: 50,
+                            r: 50,
+                            b: 50
+                        },
+                        xaxis: {
+                            title: 'Datat',
+                            titlefont: {
+                                size: 18,
+                                family: 'Arial, sans-serif',
+                                color: '#000',
+
+                            },
+                            tickfont: {
+                                size: 14,
+                                family: 'Arial, sans-serif',
+                                color: '#000'
+                            },
+                            showticklabels: true,
+                            automargin: true,
+                            tickmode: 'auto',
+                            tickformat: '%Y-%m'
+                        },
+                        yaxis: {
+                            title: 'Kursi i Këmbimit',
+                            titlefont: {
+                                size: 18,
+                                family: 'Arial, sans-serif',
+                                color: '#000'
+                            },
+                            tickfont: {
+                                size: 14,
+                                family: 'Arial, sans-serif',
+                                color: '#000'
+                            }
+                        }
+                    };
+
+                    var data = [dataCurrency1, dataCurrency2];
+
+                    Plotly.newPlot('currency-graph', data, layout);
+
+                    var exchangeRate = calculateExchangeRate(dataCurrency1, dataCurrency2);
+                    $('#exchange-rate-label').html(`1 ${selectedCurrency1} = ${exchangeRate.toFixed(4)} ${selectedCurrency2}`);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+        function calculateExchangeRate(currency1Data, currency2Data) {
+            var latestCurrency1 = currency1Data['y'][currency1Data['y'].length - 1];
+            var latestCurrency2 = currency2Data['y'][currency2Data['y'].length - 1];
+            var exchangeRate = latestCurrency2 / latestCurrency1;
+            return exchangeRate;
+        }
+    });
+</script>
+
+</body>
+</html>
